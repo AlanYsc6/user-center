@@ -1,0 +1,22 @@
+#端口
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  #项目名
+  application:
+    name: user-center
+  #数据库配置
+  datasource:
+    driver-class-name: ${uc.datasource.driver-class-name}
+    url: jdbc:mysql://${uc.datasource.host}:${uc.datasource.port}/${uc.datasource.database}
+    username: ${uc.datasource.username}
+    password: ${uc.datasource.password}
+mybatis-plus:
+  configuration:
+    #关闭驼峰映射
+    map-underscore-to-camel-case: false
+    #mybatis日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
