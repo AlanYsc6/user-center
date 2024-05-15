@@ -8,7 +8,7 @@ spring:
   #项目名
   application:
     name: user-center
-#  #session配置1天
+  #session配置1天
   session:
     timeout: 86400
   #数据库配置
