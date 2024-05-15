@@ -128,6 +128,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         log.info("用户登录成功");
         return userVO;
     }
+
+    /**
+     * 用户注销
+     *
+     * @param request 请求信息
+     * @return 注销结果
+     */
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_STATE_LOGIN);
+        return 1;
+    }
 }
 
 

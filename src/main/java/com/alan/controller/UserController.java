@@ -85,7 +85,21 @@ public class UserController {
 
         return userService.userLogin(username, password, request);
     }
-
+    /**
+     * 用户注销
+     *
+     * @param request      请求
+     * @return 注销结果
+     */
+    @PostMapping("/logout")
+    public Integer userLogout(HttpServletRequest request) {
+        if (request.getSession() == null) {
+            log.info("session is null");
+            return null;
+        }
+        //todo 修改为自定义异常
+        return userService.userLogout(request);
+    }
     /**
      * 用户鉴权
      *
