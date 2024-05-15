@@ -8,6 +8,9 @@ spring:
   #项目名
   application:
     name: user-center
+  #session配置
+  session:
+    timeout: 86400
   #数据库配置
   datasource:
     driver-class-name: ${uc.datasource.driver-class-name}

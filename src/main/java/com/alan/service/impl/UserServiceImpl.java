@@ -3,6 +3,7 @@ package com.alan.service.impl;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import com.alan.constant.UserConstant;
 import com.alan.mapper.UserMapper;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.vo.UserVO;
@@ -26,7 +27,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
     private static final String SALT = "ysc";
-    private static final String USER_LOGIN_STATE = "userLoginState";
     /**
      * 用户注册
      *
@@ -123,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
-        request.setAttribute(USER_LOGIN_STATE,userVO.getName());
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE,user);
         log.info("用户登录成功");
         return userVO;
     }

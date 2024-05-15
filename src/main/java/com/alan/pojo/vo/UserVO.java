@@ -48,6 +48,10 @@ public class UserVO implements Serializable {
      */
     private Integer status;
     /**
+     * 用户角色，默认0：普通用户,1管理员
+     */
+    private Integer userRole;
+    /**
      * 创建时间
      */
     private Date createtime;

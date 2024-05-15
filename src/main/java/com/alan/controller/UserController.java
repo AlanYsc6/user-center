@@ -6,12 +6,12 @@ import com.alan.pojo.dto.UserRegisterDTO;
 import com.alan.pojo.vo.UserVO;
 import com.alan.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Autowired
+    @Resource
     private UserService userService;
 
     @PostMapping("/register")
@@ -43,7 +43,6 @@ public class UserController {
             log.info("username or password or checkPassword is blank");
             return -8L;
         }
-
         return userService.userRegister(username, password, checkPassword);
     }
     @PostMapping("/login")

@@ -1,11 +1,7 @@
 package com.alan.pojo.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -62,7 +58,10 @@ public class User implements Serializable {
      * 用户状态，默认0：正常
      */
     private Integer status;
-
+    /**
+     * 用户角色，默认0：普通用户,1管理员
+     */
+    private Integer userRole;
     /**
      * 创建时间
      */
@@ -76,6 +75,7 @@ public class User implements Serializable {
     /**
      * 逻辑删除，默认0：否
      */
+    @TableLogic
     private Integer isdelete;
 
     @TableField(exist = false)
