@@ -1,7 +1,10 @@
 package com.alan.service;
 
 import com.alan.pojo.domain.User;
+import com.alan.pojo.vo.UserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author Alan
@@ -17,4 +20,13 @@ public interface UserService extends IService<User> {
      * @return 用户id
      */
     long userRegister(String username, String password,String checkPassword);
+
+    /**
+     * 用户登录
+     * @param username 用户名
+     * @param password 密码
+     * @param request 请求信息
+     * @return 用户信息(脱敏)
+     */
+    UserVO userLogin(String username, String password, HttpServletRequest request);
 }
