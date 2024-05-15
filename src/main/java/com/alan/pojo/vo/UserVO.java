@@ -17,9 +17,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserVO implements Serializable {
+    private static final long serialVersionUID = 9113715048574283135L;
 
-
-    private static final long serialVersionUID = 1101506795029262301L;
     private Long id;
     /**
      * 昵称

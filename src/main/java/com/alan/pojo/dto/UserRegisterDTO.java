@@ -11,9 +11,8 @@ import java.io.Serializable;
  */
 @Data
 public class UserRegisterDTO implements Serializable {
+    private static final long serialVersionUID = -954285071833996638L;
 
-
-    private static final long serialVersionUID = 9113715048574283135L;
     private String username;
 
     private String password;
