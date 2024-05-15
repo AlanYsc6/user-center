@@ -3,7 +3,6 @@ package com.alan.service.impl;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.alan.constant.UserConstant;
 import com.alan.mapper.UserMapper;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.vo.UserVO;
@@ -15,6 +14,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
 
 /**
  * @author Alan
@@ -123,7 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE,user);
+        request.getSession().setAttribute(USER_STATE_LOGIN,userVO);
         log.info("用户登录成功");
         return userVO;
     }

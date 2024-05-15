@@ -9,14 +9,14 @@ public interface UserConstant {
     /**
      * 用户登录状态
      */
-    String USER_LOGIN_STATE = "userLoginState";
+    String USER_STATE_LOGIN= "userStateLogin";
     //----------权限-------
     /**
      * 普通用户权限
      */
-    Integer USER_COMMON_ROLE = 0;
+    Integer USER_ROLE_COMMON = 0;
     /**
      * 管理员权限
      */
-    Integer USER_ADMIN_ROLE = 1;
+    Integer USER_ROLE_ADMIN = 1;
 }
