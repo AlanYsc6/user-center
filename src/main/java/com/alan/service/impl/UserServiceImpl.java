@@ -31,50 +31,50 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 用户注册
      *
-     * @param username      用户名
-     * @param password      密码
+     * @param userAccount      用户名
+     * @param userPassword      密码
      * @param checkPassword 确认密码
      * @return 用户id
      */
     @Override
-    public long userRegister(String username, String password, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword) {
         //todo 验证码
         //判断输入内容非空
-        boolean blank = StrUtil.hasBlank(username, password, checkPassword);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword);
         //todo 修改为自定义异常
         if (blank) {
             log.info("用户注册失败，输入内容为空");
             return -1;
         }
         //判断用户名合法--数字，字母，下划线，不小于四位。
-        boolean usernameGeneral = Validator.isGeneral(username, 4);
-        if (!usernameGeneral) {
+        boolean userAccountGeneral = Validator.isGeneral(userAccount, 4);
+        if (!userAccountGeneral) {
             log.info("用户注册失败，用户名不合法");
             return -2;
         }
         //判断密码合法--数字，字母，下划线，不小于六位。
-        boolean passwordGeneral = Validator.isGeneral(password, 6);
+        boolean passwordGeneral = Validator.isGeneral(userPassword, 6);
         if (!passwordGeneral) {
             log.info("用户注册失败，密码不合法");
             return -3;
         }
         //判断二次密码是否一致
-        if (!password.equals(checkPassword)) {
+        if (!userPassword.equals(checkPassword)) {
             log.info("用户注册失败，二次密码不一致");
             return -4;
         }
         //判断用户名是否重复
-        boolean usernameRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getUsername, username)) > 0;
-        if (usernameRepeat) {
+        boolean userAccountRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount)) > 0;
+        if (userAccountRepeat) {
             log.info("用户注册失败，用户名已存在");
             return -5;
         }
         //密码加密
-        String encryptPsw = SecureUtil.md5(SALT+password);
+        String encryptPsw = SecureUtil.md5(SALT+userPassword);
         //插入数据库
         User user = new User();
-        user.setUsername(username);
-        user.setPassword(encryptPsw);
+        user.setUserAccount(userAccount);
+        user.setUserPassword(encryptPsw);
         boolean result = this.save(user);
         if(result){
             log.info("用户注册成功");
@@ -88,36 +88,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 用户登录
      *
-     * @param username      用户名
-     * @param password      密码
+     * @param userAccount      用户名
+     * @param userPassword      密码
      * @param request      请求信息
      * @return 用户信息(脱敏)
      */
     @Override
-    public UserVO userLogin(String username,String password,HttpServletRequest request) {
+    public UserVO userLogin(String userAccount,String userPassword,HttpServletRequest request) {
         //判断输入内容非空
-        boolean blank = StrUtil.hasBlank(username, password);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword);
         //todo 修改为自定义异常
         if (blank) {
             log.info("用户登录失败，输入内容为空");
             return null;
         }
         //判断用户名合法--数字，字母，下划线，不小于四位。
-        boolean usernameGeneral = Validator.isGeneral(username, 4);
-        if (!usernameGeneral) {
+        boolean userAccountGeneral = Validator.isGeneral(userAccount, 4);
+        if (!userAccountGeneral) {
             log.info("用户登录失败，用户名不合法");
             return null;
         }
         //判断密码合法--数字，字母，下划线，不小于六位。
-        boolean passwordGeneral = Validator.isGeneral(password, 6);
+        boolean passwordGeneral = Validator.isGeneral(userPassword, 6);
         if (!passwordGeneral) {
             log.info("用户登录失败，密码不合法");
             return null;
         }
         //密码加密
-        String encryptPsw = SecureUtil.md5(SALT+password);
+        String encryptPsw = SecureUtil.md5(SALT+userPassword);
         //查询数据库
-        User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username).eq(User::getPassword, encryptPsw));
+        User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount).eq(User::getUserPassword, encryptPsw));
         if(user==null){
             log.info("用户登录失败，用户名或密码错误");
             return null;

@@ -20,11 +20,11 @@ class UserServiceTest {
     void testAddUser() {
         User user = new User();
 
-        user.setName("杨轩");
-        user.setUsername("Alan");
+        user.setUsername("杨轩");
+        user.setUserAccount("Alan");
         user.setAcatarurl("https://gitee.com/alanysc/image/raw/master/user9.jpeg");
         user.setGender(1);
-        user.setPassword("123456");
+        user.setUserPassword("123456");
         user.setPhone("17516569585");
         user.setEmail("alanysc@qq.com");
 
@@ -40,7 +40,7 @@ class UserServiceTest {
     void testUpdateUser() {
         User user = new User();
         user.setId(1L);
-        user.setUsername("alan");
+        user.setUserAccount("alan");
         boolean result = userService.updateById(user);
         System.out.println(result);
         assertNotNull(user);
@@ -49,28 +49,28 @@ class UserServiceTest {
 
     @Test
     void userRegister() {
-        String username = "Alan";
-        String password = "";
+        String userAccount = "Alan";
+        String userPassword = "";
         String checkPassword = "123456";
-        long result = userService.userRegister(username, password, checkPassword);
+        long result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertEquals(-1, result);
-        username = "A lan";
-        password = "123456";
-        result = userService.userRegister(username, password, checkPassword);
+        userAccount = "A lan";
+        userPassword = "123456";
+        result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertEquals(-2, result);
-        username = "Alan";
-        password = "12.456";
-        result = userService.userRegister(username, password, checkPassword);
+        userAccount = "Alan";
+        userPassword = "12.456";
+        result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertEquals(-3, result);
-        password = "12345678";
-        result = userService.userRegister(username, password, checkPassword);
+        userPassword = "12345678";
+        result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertEquals(-4, result);
-        username = "alan";
-        password = "123456";
-        result = userService.userRegister(username, password, checkPassword);
+        userAccount = "alan";
+        userPassword = "123456";
+        result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertEquals(-5, result);
-        username = "Alan";
-        result = userService.userRegister(username, password, checkPassword);
+        userAccount = "Alan";
+        result = userService.userRegister(userAccount, userPassword, checkPassword);
         assertTrue(result > 0);
     }
     /**
@@ -78,7 +78,7 @@ class UserServiceTest {
      */
     @Test
     void testEq(){
-        User usernameRepeat = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, "ALAN"));
-        System.out.println(usernameRepeat);
+        User userAccountRepeat = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUserAccount, "ALAN"));
+        System.out.println(userAccountRepeat);
     }
 }

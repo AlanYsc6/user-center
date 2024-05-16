@@ -14,21 +14,21 @@ import javax.servlet.http.HttpServletRequest;
 public interface UserService extends IService<User> {
     /**
      * 用户注册
-     * @param username 用户名
-     * @param password 密码
+     * @param userAccount 用户名
+     * @param userPassword 密码
      * @param checkPassword 确认密码
      * @return 用户id
      */
-    long userRegister(String username, String password,String checkPassword);
+    long userRegister(String userAccount, String userPassword,String checkPassword);
 
     /**
      * 用户登录
-     * @param username 用户名
-     * @param password 密码
+     * @param userAccount 用户名
+     * @param userPassword 密码
      * @param request 请求信息
      * @return 用户信息(脱敏)
      */
-    UserVO userLogin(String username, String password, HttpServletRequest request);
+    UserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
     /**
      * 用户注销

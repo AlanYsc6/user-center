@@ -23,11 +23,11 @@ public class UserVO implements Serializable {
     /**
      * 昵称
      */
-    private String name;
+    private String username;
     /**
      * 用户名
      */
-    private String username;
+    private String userAccount;
     /**
      * 头像
      */
@@ -47,7 +47,7 @@ public class UserVO implements Serializable {
     /**
      * 用户状态，默认0：正常
      */
-    private Integer status;
+    private Integer userStatus;
     /**
      * 用户角色，默认0：普通用户,1管理员
      */
@@ -55,5 +55,5 @@ public class UserVO implements Serializable {
     /**
      * 创建时间
      */
-    private Date createtime;
+    private Date createTime;
 }

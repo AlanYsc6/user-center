@@ -25,7 +25,7 @@ import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
     @Resource
     private UserService userService;
@@ -44,17 +44,17 @@ public class UserController {
             return -7L;
         }
 
-        String username = userRegisterDTO.getUsername();
-        String password = userRegisterDTO.getPassword();
+        String userAccount = userRegisterDTO.getUserAccount();
+        String userPassword = userRegisterDTO.getUserPassword();
         String checkPassword = userRegisterDTO.getCheckPassword();
 
-        boolean blank = StrUtil.hasBlank(username, password, checkPassword);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword);
         //todo 修改为自定义异常
         if (blank) {
-            log.info("username or password or checkPassword is blank");
+            log.info("userAccount or userPassword or checkPassword is blank");
             return -8L;
         }
-        return userService.userRegister(username, password, checkPassword);
+        return userService.userRegister(userAccount, userPassword, checkPassword);
     }
 
     /**
@@ -73,17 +73,17 @@ public class UserController {
             return null;
         }
 
-        String username = userLoginDTO.getUsername();
-        String password = userLoginDTO.getPassword();
+        String userAccount = userLoginDTO.getUserAccount();
+        String userPassword = userLoginDTO.getUserPassword();
 
-        boolean blank = StrUtil.hasBlank(username, password);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword);
         //todo 修改为自定义异常
         if (blank) {
-            log.info("username or password is blank");
+            log.info("userAccount or userPassword is blank");
             return null;
         }
 
-        return userService.userLogin(username, password, request);
+        return userService.userLogin(userAccount, userPassword, request);
     }
     /**
      * 用户注销
@@ -119,7 +119,7 @@ public class UserController {
     /**
      * 查询用户
      *
-     * @param username 用户名
+     * @param username 昵称
      * @param request  请求信息
      * @return 用户集合
      */

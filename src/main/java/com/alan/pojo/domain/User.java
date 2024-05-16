@@ -22,12 +22,12 @@ public class User implements Serializable {
     /**
      * 昵称
      */
-    private String name;
+    private String username;
 
     /**
      * 用户名
      */
-    private String username;
+    private String userAccount;
 
     /**
      * 头像
@@ -42,7 +42,7 @@ public class User implements Serializable {
     /**
      * 密码，非空
      */
-    private String password;
+    private String userPassword;
 
     /**
      * 电话
@@ -57,27 +57,26 @@ public class User implements Serializable {
     /**
      * 用户状态，默认0：正常
      */
-    private Integer status;
-    /**
-     * 用户角色，默认0：普通用户,1管理员
-     */
-    private Integer userRole;
+    private Integer userStatus;
     /**
      * 创建时间
      */
-    private Date createtime;
+    private Date createTime;
 
     /**
      * 更新时间
      */
-    private Date updatetime;
+    private Date updateTime;
 
     /**
      * 逻辑删除，默认0：否
      */
     @TableLogic
-    private Integer isdelete;
-
+    private Integer isDelete;
+    /**
+     * 用户角色，默认0：普通用户,1管理员
+     */
+    private Integer userRole;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }
