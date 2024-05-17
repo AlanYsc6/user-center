@@ -8,6 +8,7 @@ import com.alan.pojo.vo.UserVO;
 import com.alan.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,7 +26,7 @@ import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
     @Resource
     private UserService userService;
@@ -85,10 +86,39 @@ public class UserController {
 
         return userService.userLogin(userAccount, userPassword, request);
     }
+
+    /**
+     * 获取当前登录用户信息
+     * @param request 请求信息
+     * @return 当前用户信息
+     */
+    @GetMapping("/current")
+    public UserVO getCurrentUser(HttpServletRequest request) {
+        if (request.getSession() == null) {
+            log.info("session is null");
+            return null;
+        }
+        Object userObj = request.getSession().getAttribute(USER_STATE_LOGIN);
+        if (userObj == null) {
+            log.info("user is not login");
+            return null;
+        }
+        UserVO userVO = (UserVO) userObj;
+        long userVOId = userVO.getId();
+        User user = userService.getById(userVOId);
+        if(user == null){
+            log.info("user is null");
+            return null;
+        }
+        BeanUtils.copyProperties(user, userVO);
+        log.info("userVO: {}", userVO);
+        return userVO;
+    }
+
     /**
      * 用户注销
      *
-     * @param request      请求
+     * @param request 请求信息
      * @return 注销结果
      */
     @PostMapping("/logout")
@@ -116,6 +146,7 @@ public class UserController {
         return Objects.equals(userVO.getUserRole(), USER_ROLE_ADMIN);
     }
 
+
     /**
      * 查询用户
      *
@@ -124,8 +155,8 @@ public class UserController {
      * @return 用户集合
      */
 
-    @GetMapping("/search/{username}")
-    public List<User> userSearchByName(@PathVariable("username") String username, HttpServletRequest request) {
+    @GetMapping("/search")
+    public List<User> userSearchByName(String username, HttpServletRequest request) {
         log.info("username: {},session: {}", username,request.getSession().getAttribute(USER_STATE_LOGIN));
         boolean blank = StrUtil.hasBlank(username);
         if (blank) {
@@ -147,8 +178,8 @@ public class UserController {
      * @param request 请求信息
      * @return 删除结果
      */
-    @DeleteMapping("/delete/{id}")
-    public Boolean userDeleteById(@PathVariable("id") Long id, HttpServletRequest request) {
+    @PostMapping("/delete")
+    public Boolean userDeleteById(@RequestBody Long id, HttpServletRequest request) {
         log.info("id: {}", id);
         if(id<=0){
             log.info("id is invalid");

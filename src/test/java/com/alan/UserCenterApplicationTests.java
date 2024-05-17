@@ -16,11 +16,11 @@ class UserCenterApplicationTests {
         String originalPsw = "123456";
         String encryptPsw = SecureUtil.md5(SALT+originalPsw);
         System.out.println(encryptPsw);
-        // 测试加密后的密码是否和原密码一致
-        String userPsw = "123456";
-        String EUserPsw = SecureUtil.md5(SALT+userPsw);
-        System.out.println(EUserPsw);
-        System.out.println(encryptPsw.equals(EUserPsw));
+//        // 测试加密后的密码是否和原密码一致
+//        String userPsw = "123456";
+//        String EUserPsw = SecureUtil.md5(SALT+userPsw);
+//        System.out.println(EUserPsw);
+//        System.out.println(encryptPsw.equals(EUserPsw));
     }
 
     /**

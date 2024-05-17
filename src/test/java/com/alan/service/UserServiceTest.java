@@ -22,7 +22,7 @@ class UserServiceTest {
 
         user.setUsername("杨轩");
         user.setUserAccount("Alan");
-        user.setAcatarurl("https://gitee.com/alanysc/image/raw/master/user9.jpeg");
+        user.setAvatarUrl("https://gitee.com/alanysc/image/raw/master/user9.jpeg");
         user.setGender(1);
         user.setUserPassword("123456");
         user.setPhone("17516569585");
