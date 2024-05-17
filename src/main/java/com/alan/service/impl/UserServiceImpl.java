@@ -3,6 +3,8 @@ package com.alan.service.impl;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import com.alan.common.ErrorCode;
+import com.alan.exception.BusinessException;
 import com.alan.mapper.UserMapper;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.vo.UserVO;
@@ -39,47 +41,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
-        //todo 验证码
+
         //判断输入内容非空
         boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword,planetCode);
-        //todo 修改为自定义异常
+
         if (blank) {
             log.info("用户注册失败，输入内容为空");
-            return -1;
+            throw new BusinessException(ErrorCode.PARAM_NULL,"参数为空");
         }
         //判断用户名合法--数字，字母，下划线，不小于四位。
         boolean userAccountGeneral = Validator.isGeneral(userAccount, 4);
         if (!userAccountGeneral) {
             log.info("用户注册失败，用户名不合法");
-            return -2;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"用户名不合法");
         }
         //判断密码合法--数字，字母，下划线，不小于六位。
         boolean passwordGeneral = Validator.isGeneral(userPassword, 6);
         if (!passwordGeneral) {
             log.info("用户注册失败，密码不合法");
-            return -3;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"密码不合法");
         }
         //判断星球编号合法--数字，不大于5位。
         if (!(Validator.isNumber(planetCode)&&Validator.isGeneral(planetCode, 2,5))) {
             log.info("用户注册失败，星球编号不合法");
-            return -4;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"星球编号不合法");
         }
         //判断二次密码是否一致
         if (!userPassword.equals(checkPassword)) {
             log.info("用户注册失败，二次密码不一致");
-            return -5;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"二次密码不一致");
         }
         //判断用户名是否重复
         boolean userAccountRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount)) > 0;
         if (userAccountRepeat) {
             log.info("用户注册失败，用户名已存在");
-            return -6;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"用户名已存在");
         }
         //判断星球编号是否重复
         boolean planetCodeRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getPlanetCode, planetCode)) > 0;
         if (planetCodeRepeat) {
             log.info("用户注册失败，星球编号已存在");
-            return -7;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"星球编号已存在");
         }
         //密码加密
         String encryptPsw = SecureUtil.md5(SALT+userPassword);
@@ -94,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return user.getId();
         } else {
             log.info("用户注册失败");
-            return -8;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"用户注册失败");
         }
     }
 
@@ -110,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public UserVO userLogin(String userAccount,String userPassword,HttpServletRequest request) {
         //判断输入内容非空
         boolean blank = StrUtil.hasBlank(userAccount, userPassword);
-        //todo 修改为自定义异常
+
         if (blank) {
             log.info("用户登录失败，输入内容为空");
             return null;

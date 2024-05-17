@@ -2,6 +2,8 @@ package com.alan.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.alan.common.BaseResponse;
+import com.alan.common.ErrorCode;
+import com.alan.exception.BusinessException;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.dto.UserLoginDTO;
 import com.alan.pojo.dto.UserRegisterDTO;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,7 +47,7 @@ public class UserController {
         log.info("userRegisterDTO: {}", userRegisterDTO);
         if (userRegisterDTO == null) {
             log.info("userRegisterDTO is null");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"注册信息不能为空");
         }
 
         String userAccount = userRegisterDTO.getUserAccount();
@@ -52,11 +55,11 @@ public class UserController {
         String checkPassword = userRegisterDTO.getCheckPassword();
         String planetCode = userRegisterDTO.getPlanetCode();
 
-        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword,planetCode);
-        //todo 修改为自定义异常
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword, planetCode);
+
         if (blank) {
             log.info("userAccount or userPassword or checkPassword or planetCode is blank");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_NULL,"注册信息不能为空");
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         return ResultUtils.success(result);
@@ -75,17 +78,17 @@ public class UserController {
         log.info("userLoginDTO: {}", userLoginDTO);
         if (userLoginDTO == null) {
             log.info("userLoginDTO is null");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"登录信息不能为空");
         }
 
         String userAccount = userLoginDTO.getUserAccount();
         String userPassword = userLoginDTO.getUserPassword();
 
         boolean blank = StrUtil.hasBlank(userAccount, userPassword);
-        //todo 修改为自定义异常
+
         if (blank) {
             log.info("userAccount or userPassword is blank");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_NULL,"登录信息不能为空");
         }
 
         UserVO userVO = userService.userLogin(userAccount, userPassword, request);
@@ -94,6 +97,7 @@ public class UserController {
 
     /**
      * 获取当前登录用户信息
+     *
      * @param request 请求信息
      * @return 当前用户信息
      */
@@ -101,19 +105,19 @@ public class UserController {
     public BaseResponse<UserVO> getCurrentUser(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_NULL,"session is null");
         }
         Object userObj = request.getSession().getAttribute(USER_STATE_LOGIN);
         if (userObj == null) {
             log.info("user is not login");
-            return null;
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户未登录");
         }
         UserVO userVO = (UserVO) userObj;
         long userVOId = userVO.getId();
         User user = userService.getById(userVOId);
-        if(user == null){
+        if (user == null) {
             log.info("user is null");
-            return null;
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户不存在");
         }
         BeanUtils.copyProperties(user, userVO);
         log.info("userVO: {}", userVO);
@@ -130,12 +134,13 @@ public class UserController {
     public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_NULL,"session is null");
         }
-        //todo 修改为自定义异常
+
         int logout = userService.userLogout(request);
         return ResultUtils.success(logout);
     }
+
     /**
      * 用户鉴权
      *
@@ -146,7 +151,7 @@ public class UserController {
         Object userObj = request.getSession().getAttribute(USER_STATE_LOGIN);
         if (userObj == null) {
             log.info("user is not login");
-            return false;
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户未登录");
         }
         UserVO userVO = (UserVO) userObj;
         return Objects.equals(userVO.getUserRole(), USER_ROLE_ADMIN);
@@ -162,20 +167,26 @@ public class UserController {
      */
 
     @GetMapping("/search")
-    public BaseResponse<List<User>> userSearchByName(String username, HttpServletRequest request) {
-        log.info("username: {},session: {}", username,request.getSession().getAttribute(USER_STATE_LOGIN));
-        boolean blank = StrUtil.hasBlank(username);
-        if (blank) {
-            log.info("username is blank");
-            return null;
-        }
+    public BaseResponse<List<UserVO>> userSearchByName(String username, HttpServletRequest request) {
+
         if (!isAdmin(request)) {
             log.info("user is not admin");
-            return null;
+            throw new BusinessException(ErrorCode.NO_AUTH,"用户无权限");
         }
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        boolean blank = StrUtil.hasBlank(username);
+        if (!blank) {
+            queryWrapper.like(User::getUsername, username);
+        }
+        List<User> users = userService.list(queryWrapper);
+        List<UserVO> userVos = new ArrayList<>();
+        users.forEach(user -> {
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user, userVO);
+            userVos.add(userVO);
+        });
         log.info("query succeeded");
-        List<User> users = userService.list(new LambdaQueryWrapper<User>().like(User::getUsername, username));
-        return ResultUtils.success(users);
+        return ResultUtils.success(userVos);
     }
 
     /**
@@ -188,13 +199,13 @@ public class UserController {
     @PostMapping("/delete")
     public BaseResponse<Boolean> userDeleteById(@RequestBody Long id, HttpServletRequest request) {
         log.info("id: {}", id);
-        if(id<=0){
+        if (id <= 0) {
             log.info("id is invalid");
-            return null;
+            throw new BusinessException(ErrorCode.PARAM_ERROR,"用户id不合法");
         }
         if (!isAdmin(request)) {
             log.info("user is not admin");
-            return null;
+            throw new BusinessException(ErrorCode.NO_AUTH,"用户无权限");
         }
         boolean remove = userService.removeById(id);
         return ResultUtils.success(remove);
