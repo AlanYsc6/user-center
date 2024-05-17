@@ -42,20 +42,21 @@ public class UserController {
         log.info("userRegisterDTO: {}", userRegisterDTO);
         if (userRegisterDTO == null) {
             log.info("userRegisterDTO is null");
-            return -7L;
+            return -9L;
         }
 
         String userAccount = userRegisterDTO.getUserAccount();
         String userPassword = userRegisterDTO.getUserPassword();
         String checkPassword = userRegisterDTO.getCheckPassword();
+        String planetCode = userRegisterDTO.getPlanetCode();
 
-        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword,planetCode);
         //todo 修改为自定义异常
         if (blank) {
-            log.info("userAccount or userPassword or checkPassword is blank");
-            return -8L;
+            log.info("userAccount or userPassword or checkPassword or planetCode is blank");
+            return -10L;
         }
-        return userService.userRegister(userAccount, userPassword, checkPassword);
+        return userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
     }
 
     /**

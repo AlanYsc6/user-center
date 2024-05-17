@@ -56,4 +56,8 @@ public class UserVO implements Serializable {
      * 创建时间
      */
     private Date createTime;
+    /**
+     * 星球编号
+     */
+    private String planetCode;
 }

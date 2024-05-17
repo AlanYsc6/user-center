@@ -34,13 +34,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @param userAccount      用户名
      * @param userPassword      密码
      * @param checkPassword 确认密码
+     * @param planetCode 星球编号
      * @return 用户id
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
         //todo 验证码
         //判断输入内容非空
-        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword);
+        boolean blank = StrUtil.hasBlank(userAccount, userPassword, checkPassword,planetCode);
         //todo 修改为自定义异常
         if (blank) {
             log.info("用户注册失败，输入内容为空");
@@ -58,16 +59,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("用户注册失败，密码不合法");
             return -3;
         }
+        //判断星球编号合法--数字，不大于5位。
+        if (!(Validator.isNumber(planetCode)&&Validator.isGeneral(planetCode, 2,5))) {
+            log.info("用户注册失败，星球编号不合法");
+            return -4;
+        }
         //判断二次密码是否一致
         if (!userPassword.equals(checkPassword)) {
             log.info("用户注册失败，二次密码不一致");
-            return -4;
+            return -5;
         }
         //判断用户名是否重复
         boolean userAccountRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getUserAccount, userAccount)) > 0;
         if (userAccountRepeat) {
             log.info("用户注册失败，用户名已存在");
-            return -5;
+            return -6;
+        }
+        //判断星球编号是否重复
+        boolean planetCodeRepeat = this.count(new LambdaQueryWrapper<User>().eq(User::getPlanetCode, planetCode)) > 0;
+        if (planetCodeRepeat) {
+            log.info("用户注册失败，星球编号已存在");
+            return -7;
         }
         //密码加密
         String encryptPsw = SecureUtil.md5(SALT+userPassword);
@@ -81,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return user.getId();
         } else {
             log.info("用户注册失败");
-            return -6;
+            return -8;
         }
     }
 
