@@ -1,11 +1,13 @@
 package com.alan.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alan.common.BaseResponse;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.dto.UserLoginDTO;
 import com.alan.pojo.dto.UserRegisterDTO;
 import com.alan.pojo.vo.UserVO;
 import com.alan.service.UserService;
+import com.alan.utils.ResultUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -38,11 +40,11 @@ public class UserController {
      * @return 注册成功后返回用户id
      */
     @PostMapping("/register")
-    public Long userRegister(@RequestBody UserRegisterDTO userRegisterDTO) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterDTO userRegisterDTO) {
         log.info("userRegisterDTO: {}", userRegisterDTO);
         if (userRegisterDTO == null) {
             log.info("userRegisterDTO is null");
-            return -9L;
+            return null;
         }
 
         String userAccount = userRegisterDTO.getUserAccount();
@@ -54,9 +56,10 @@ public class UserController {
         //todo 修改为自定义异常
         if (blank) {
             log.info("userAccount or userPassword or checkPassword or planetCode is blank");
-            return -10L;
+            return null;
         }
-        return userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
+        return ResultUtils.success(result);
     }
 
     /**
@@ -68,7 +71,7 @@ public class UserController {
      */
 
     @PostMapping("/login")
-    public UserVO userLogin(@RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request) {
+    public BaseResponse<UserVO> userLogin(@RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request) {
         log.info("userLoginDTO: {}", userLoginDTO);
         if (userLoginDTO == null) {
             log.info("userLoginDTO is null");
@@ -85,7 +88,8 @@ public class UserController {
             return null;
         }
 
-        return userService.userLogin(userAccount, userPassword, request);
+        UserVO userVO = userService.userLogin(userAccount, userPassword, request);
+        return ResultUtils.success(userVO);
     }
 
     /**
@@ -94,7 +98,7 @@ public class UserController {
      * @return 当前用户信息
      */
     @GetMapping("/current")
-    public UserVO getCurrentUser(HttpServletRequest request) {
+    public BaseResponse<UserVO> getCurrentUser(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
             return null;
@@ -113,7 +117,7 @@ public class UserController {
         }
         BeanUtils.copyProperties(user, userVO);
         log.info("userVO: {}", userVO);
-        return userVO;
+        return ResultUtils.success(userVO);
     }
 
     /**
@@ -123,13 +127,14 @@ public class UserController {
      * @return 注销结果
      */
     @PostMapping("/logout")
-    public Integer userLogout(HttpServletRequest request) {
+    public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
             return null;
         }
         //todo 修改为自定义异常
-        return userService.userLogout(request);
+        int logout = userService.userLogout(request);
+        return ResultUtils.success(logout);
     }
     /**
      * 用户鉴权
@@ -157,7 +162,7 @@ public class UserController {
      */
 
     @GetMapping("/search")
-    public List<User> userSearchByName(String username, HttpServletRequest request) {
+    public BaseResponse<List<User>> userSearchByName(String username, HttpServletRequest request) {
         log.info("username: {},session: {}", username,request.getSession().getAttribute(USER_STATE_LOGIN));
         boolean blank = StrUtil.hasBlank(username);
         if (blank) {
@@ -169,7 +174,8 @@ public class UserController {
             return null;
         }
         log.info("query succeeded");
-        return userService.list(new LambdaQueryWrapper<User>().like(User::getUsername, username));
+        List<User> users = userService.list(new LambdaQueryWrapper<User>().like(User::getUsername, username));
+        return ResultUtils.success(users);
     }
 
     /**
@@ -180,16 +186,17 @@ public class UserController {
      * @return 删除结果
      */
     @PostMapping("/delete")
-    public Boolean userDeleteById(@RequestBody Long id, HttpServletRequest request) {
+    public BaseResponse<Boolean> userDeleteById(@RequestBody Long id, HttpServletRequest request) {
         log.info("id: {}", id);
         if(id<=0){
             log.info("id is invalid");
-            return false;
+            return null;
         }
         if (!isAdmin(request)) {
             log.info("user is not admin");
-            return false;
+            return null;
         }
-        return userService.removeById(id);
+        boolean remove = userService.removeById(id);
+        return ResultUtils.success(remove);
     }
 }

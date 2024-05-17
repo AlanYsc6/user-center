@@ -87,6 +87,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPsw);
+        user.setPlanetCode(planetCode);
         boolean result = this.save(user);
         if(result){
             log.info("用户注册成功");
