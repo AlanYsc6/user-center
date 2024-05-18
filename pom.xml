@@ -90,7 +90,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.alan.UserCenterApplication</mainClass>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 <executions>
                     <execution>
@@ -101,6 +101,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
