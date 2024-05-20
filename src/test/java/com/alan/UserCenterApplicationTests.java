@@ -2,8 +2,12 @@ package com.alan;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import com.alan.pojo.vo.RegdVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class UserCenterApplicationTests {
@@ -33,6 +37,11 @@ class UserCenterApplicationTests {
     }
     @Test
     void contextLoads() {
+        List<RegdVO> regdVOS=new ArrayList<>();
+        regdVOS.add(new RegdVO("2021-1-1",11));
+        regdVOS.add(new RegdVO("2021-1-1",11));
+        regdVOS.add(new RegdVO("2021-1-1",11));
+        regdVOS.forEach(System.out::println);
     }
 
 }

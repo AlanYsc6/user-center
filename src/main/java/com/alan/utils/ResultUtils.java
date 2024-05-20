@@ -27,7 +27,13 @@ public class ResultUtils {
     public static BaseResponse error(ErrorCode errorCode) {
         return new BaseResponse<>(errorCode);
     }
-
+    /**
+     * 失败
+     * @return BaseResponse
+     */
+    public static BaseResponse error(String message) {
+        return new BaseResponse<>(message);
+    }
 
     /**
      * 失败

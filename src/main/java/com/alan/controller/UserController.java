@@ -7,19 +7,29 @@ import com.alan.exception.BusinessException;
 import com.alan.pojo.domain.User;
 import com.alan.pojo.dto.UserLoginDTO;
 import com.alan.pojo.dto.UserRegisterDTO;
+import com.alan.pojo.vo.RegdVO;
 import com.alan.pojo.vo.UserVO;
 import com.alan.service.UserService;
+import com.alan.utils.AliOssUtil;
 import com.alan.utils.ResultUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.alan.constant.UserConstant.USER_ROLE_ADMIN;
 import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
@@ -35,6 +45,44 @@ import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
 public class UserController {
     @Resource
     private UserService userService;
+    @Autowired
+    private AliOssUtil aliOssUtil;
+
+    //OSS文件上传
+    @PostMapping("/upload")
+    public BaseResponse<String> upload(MultipartFile file) {
+        log.info("OSS文件上传:{}", file);
+        try {
+            //获取原始文件名
+            String originalFilename = file.getOriginalFilename();
+            //截取原始文件名的后缀
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            //构建新文件名称
+            String objectName = aliOssUtil.getFolderName()+ UUID.randomUUID().toString() + extension;
+            //文件请求路径
+            String filePath = aliOssUtil.upload(file.getBytes(), objectName);
+            return ResultUtils.success(filePath);
+        } catch (IOException e) {
+            log.error("文件上传失败:{}",e);
+        }
+        return ResultUtils.error("文件上传失败");
+    }
+    @GetMapping("/regd")
+    public List<RegdVO> getRegd() {
+        List<RegdVO> regdVOList = new ArrayList<>();
+        //获取从begin到end的日期
+        List<LocalDate> dateList = userService.getDateList();
+        for (LocalDate dateT : dateList) {
+            //查询dateT这天，create_time=dateT的用户数
+            LocalDateTime beginTime = LocalDateTime.of(dateT, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(dateT, LocalTime.MAX);
+            Integer regs = Math.toIntExact(userService.count(new LambdaQueryWrapper<User>().between(User::getCreateTime, beginTime, endTime)));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
+            String date = dateT.format(formatter);
+            regdVOList.add(new RegdVO(date, regs));
+        }
+        return regdVOList;
+    }
 
     /**
      * 用户注册
@@ -47,7 +95,7 @@ public class UserController {
         log.info("userRegisterDTO: {}", userRegisterDTO);
         if (userRegisterDTO == null) {
             log.info("userRegisterDTO is null");
-            throw new BusinessException(ErrorCode.PARAM_ERROR,"注册信息不能为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "注册信息不能为空");
         }
 
         String userAccount = userRegisterDTO.getUserAccount();
@@ -59,7 +107,7 @@ public class UserController {
 
         if (blank) {
             log.info("userAccount or userPassword or checkPassword or planetCode is blank");
-            throw new BusinessException(ErrorCode.PARAM_NULL,"注册信息不能为空");
+            throw new BusinessException(ErrorCode.PARAM_NULL, "注册信息不能为空");
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         return ResultUtils.success(result);
@@ -78,7 +126,7 @@ public class UserController {
         log.info("userLoginDTO: {}", userLoginDTO);
         if (userLoginDTO == null) {
             log.info("userLoginDTO is null");
-            throw new BusinessException(ErrorCode.PARAM_ERROR,"登录信息不能为空");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "登录信息不能为空");
         }
 
         String userAccount = userLoginDTO.getUserAccount();
@@ -88,7 +136,7 @@ public class UserController {
 
         if (blank) {
             log.info("userAccount or userPassword is blank");
-            throw new BusinessException(ErrorCode.PARAM_NULL,"登录信息不能为空");
+            throw new BusinessException(ErrorCode.PARAM_NULL, "登录信息不能为空");
         }
 
         UserVO userVO = userService.userLogin(userAccount, userPassword, request);
@@ -105,19 +153,19 @@ public class UserController {
     public BaseResponse<UserVO> getCurrentUser(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
-            throw new BusinessException(ErrorCode.PARAM_NULL,"session is null");
+            throw new BusinessException(ErrorCode.PARAM_NULL, "session is null");
         }
         Object userObj = request.getSession().getAttribute(USER_STATE_LOGIN);
         if (userObj == null) {
             log.info("user is not login");
-            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户未登录");
+            throw new BusinessException(ErrorCode.NOT_LOGIN, "用户未登录");
         }
         UserVO userVO = (UserVO) userObj;
         long userVOId = userVO.getId();
         User user = userService.getById(userVOId);
         if (user == null) {
             log.info("user is null");
-            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户不存在");
+            throw new BusinessException(ErrorCode.NOT_LOGIN, "用户不存在");
         }
         BeanUtils.copyProperties(user, userVO);
         log.info("userVO: {}", userVO);
@@ -134,7 +182,7 @@ public class UserController {
     public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request.getSession() == null) {
             log.info("session is null");
-            throw new BusinessException(ErrorCode.PARAM_NULL,"session is null");
+            throw new BusinessException(ErrorCode.PARAM_NULL, "session is null");
         }
 
         int logout = userService.userLogout(request);
@@ -151,7 +199,7 @@ public class UserController {
         Object userObj = request.getSession().getAttribute(USER_STATE_LOGIN);
         if (userObj == null) {
             log.info("user is not login");
-            throw new BusinessException(ErrorCode.NOT_LOGIN,"用户未登录");
+            throw new BusinessException(ErrorCode.NOT_LOGIN, "用户未登录");
         }
         UserVO userVO = (UserVO) userObj;
         return Objects.equals(userVO.getUserRole(), USER_ROLE_ADMIN);
@@ -171,7 +219,7 @@ public class UserController {
 
         if (!isAdmin(request)) {
             log.info("user is not admin");
-            throw new BusinessException(ErrorCode.NO_AUTH,"用户无权限");
+            throw new BusinessException(ErrorCode.NO_AUTH, "用户无权限");
         }
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         boolean blank = StrUtil.hasBlank(username);
@@ -201,11 +249,11 @@ public class UserController {
         log.info("id: {}", id);
         if (id <= 0) {
             log.info("id is invalid");
-            throw new BusinessException(ErrorCode.PARAM_ERROR,"用户id不合法");
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "用户id不合法");
         }
         if (!isAdmin(request)) {
             log.info("user is not admin");
-            throw new BusinessException(ErrorCode.NO_AUTH,"用户无权限");
+            throw new BusinessException(ErrorCode.NO_AUTH, "用户无权限");
         }
         boolean remove = userService.removeById(id);
         return ResultUtils.success(remove);

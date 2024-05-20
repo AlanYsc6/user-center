@@ -16,6 +16,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
 
@@ -98,6 +101,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("用户注册失败");
             throw new BusinessException(ErrorCode.PARAM_ERROR,"用户注册失败");
         }
+    }
+
+    //获取近十天日期
+    public List<LocalDate> getDateList() {
+        List<LocalDate> dateList = new ArrayList<>();
+        LocalDate end= LocalDate.now();
+        LocalDate begin = end.minusDays(10);
+        while (!begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        return dateList;
     }
 
     /**

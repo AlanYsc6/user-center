@@ -5,6 +5,8 @@ import com.alan.pojo.vo.UserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
 * @author Alan
@@ -37,4 +39,6 @@ public interface UserService extends IService<User> {
      * @return 注销结果
      */
     int userLogout(HttpServletRequest request);
+
+    List<LocalDate> getDateList();
 }
