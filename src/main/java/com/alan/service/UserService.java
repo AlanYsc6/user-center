@@ -41,4 +41,9 @@ public interface UserService extends IService<User> {
     int userLogout(HttpServletRequest request);
 
     List<LocalDate> getDateList();
+    /**
+     * 根据标签查询用户
+     * @return
+     */
+    List<UserVO> searUserByTags(List<String> tagNameList);
 }

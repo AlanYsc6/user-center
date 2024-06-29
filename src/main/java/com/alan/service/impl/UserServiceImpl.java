@@ -10,11 +10,14 @@ import com.alan.pojo.domain.User;
 import com.alan.pojo.vo.UserVO;
 import com.alan.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,7 +34,8 @@ import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
-
+    @Resource
+    private UserMapper userMapper;
     private static final String SALT = "ysc";
     /**
      * 用户注册
@@ -114,7 +118,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         return dateList;
     }
-
+    /**
+     * 根据标签查询用户
+     *
+     * @return
+     */
+    @Override
+    public List<UserVO> searUserByTags(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        for (String tagName : tagNameList) {
+            queryWrapper.like("tags", tagName);
+        }
+        List<User> userList = userMapper.selectList(queryWrapper);
+        List<UserVO> userVOList = new ArrayList<>();
+        for (User user : userList) {
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user, userVO);
+            userVOList.add(userVO);
+        }
+        return userVOList;
+    }
     /**
      * 用户登录
      *

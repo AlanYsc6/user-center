@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -236,7 +237,19 @@ public class UserController {
         log.info("query succeeded");
         return ResultUtils.success(userVos);
     }
-
+    /**
+     * 根据标签查询用户
+     * @param tagNameList 标签列表
+     * @return 用户列表
+     */
+    @GetMapping("/search/tags")
+    public BaseResponse<List<UserVO>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAM_NULL);
+        }
+        List<UserVO> userList = userService.searUserByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
     /**
      * 删除用户
      *
