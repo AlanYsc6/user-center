@@ -12,12 +12,19 @@ spring:
   #session配置1天
   session:
     timeout: 86400
+    store-type: redis
   #数据库配置
   datasource:
     driver-class-name: ${uc.datasource.driver-class-name}
     url: jdbc:mysql://${uc.datasource.host}:${uc.datasource.port}/${uc.datasource.database}
     username: ${uc.datasource.username}
     password: ${uc.datasource.password}
+  # Redis 配置
+  redis:
+    host: ${uc.redis.host}
+    port: ${uc.redis.port}
+    password: ${uc.redis.password}
+    database: ${uc.redis.database}
 mybatis-plus:
   configuration:
     #关闭驼峰映射
@@ -38,7 +45,7 @@ uc:
 knife4j:
   enable: true
   openapi:
-    title: 找搭子API文档
+    title: 用户中心API文档
     description: 接口文档
     version: v1.0
     group:
