@@ -43,7 +43,27 @@ public interface UserService extends IService<User> {
     List<LocalDate> getDateList();
     /**
      * 根据标签查询用户
-     * @return
+     * @return 查询结果
      */
     List<UserVO> searUserByTags(List<String> tagNameList);
+    /**
+     * 更新用户信息
+     * @return 更新状态
+     */
+    int updateUser (User user,User loginUser);
+
+    /**
+     * 获取登录用户
+     * @param request 请求信息
+     * @return 登录用户
+     */
+    User getLoginUser(HttpServletRequest request);
+    /**
+     * 用户鉴权
+     *
+     * @param request 请求信息
+     * @return 鉴权结果
+     */
+    boolean isAdmin(HttpServletRequest request);
+    boolean isAdmin(User loginUser);
 }

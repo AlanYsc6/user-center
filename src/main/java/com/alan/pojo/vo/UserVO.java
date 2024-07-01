@@ -19,7 +19,7 @@ import java.util.Date;
 public class UserVO implements Serializable {
     private static final long serialVersionUID = 9113715048574283135L;
 
-    private Long id;
+    private long id;
     /**
      * 昵称
      */
