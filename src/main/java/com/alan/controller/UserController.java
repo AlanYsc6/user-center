@@ -13,6 +13,7 @@ import com.alan.service.UserService;
 import com.alan.utils.AliOssUtil;
 import com.alan.utils.ResultUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.alan.constant.UserConstant.USER_STATE_LOGIN;
 
@@ -57,15 +59,16 @@ public class UserController {
             //截取原始文件名的后缀
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             //构建新文件名称
-            String objectName = aliOssUtil.getFolderName()+ UUID.randomUUID().toString() + extension;
+            String objectName = aliOssUtil.getFolderName() + UUID.randomUUID().toString() + extension;
             //文件请求路径
             String filePath = aliOssUtil.upload(file.getBytes(), objectName);
             return ResultUtils.success(filePath);
         } catch (IOException e) {
-            log.error("文件上传失败:{}",e);
+            log.error("文件上传失败:{}", e);
         }
         return ResultUtils.error("文件上传失败");
     }
+
     @GetMapping("/regd")
     public List<RegdVO> getRegd() {
         List<RegdVO> regdVOList = new ArrayList<>();
@@ -195,10 +198,8 @@ public class UserController {
      * @param request  请求信息
      * @return 用户集合
      */
-
     @GetMapping("/search")
     public BaseResponse<List<UserVO>> userSearchByName(String username, HttpServletRequest request) {
-
         if (!userService.isAdmin(request)) {
             log.info("user is not admin");
             throw new BusinessException(ErrorCode.NO_AUTH, "用户无权限");
@@ -218,8 +219,10 @@ public class UserController {
         log.info("query succeeded");
         return ResultUtils.success(userVos);
     }
+
     /**
      * 根据标签查询用户
+     *
      * @param tagNameList 标签列表
      * @return 用户列表
      */
@@ -231,6 +234,7 @@ public class UserController {
         List<UserVO> userList = userService.searUserByTags(tagNameList);
         return ResultUtils.success(userList);
     }
+
     /**
      * 删除用户
      *
@@ -252,6 +256,7 @@ public class UserController {
         boolean remove = userService.removeById(id);
         return ResultUtils.success(remove);
     }
+
     /**
      * 修改用户
      *
@@ -259,12 +264,37 @@ public class UserController {
      * @return 修改结果
      */
     @PostMapping("/update")
-    public BaseResponse<Integer> updateUser(User user,HttpServletRequest request) {
-        if (user==null) {
+    public BaseResponse<Integer> updateUser(User user, HttpServletRequest request) {
+        if (user == null) {
             throw new BusinessException(ErrorCode.PARAM_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        Integer result = userService.updateUser(user,loginUser);
+        Integer result = userService.updateUser(user, loginUser);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 推荐用户
+     *
+     * @param request 请求信息
+     * @return 用户集合
+     */
+    @GetMapping("/recommend")
+    public BaseResponse<Page<UserVO>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        Page<User> users = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        List<UserVO> userVos = users.getRecords().stream().map(user -> {
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user, userVO);
+            return userVO;
+        }).collect(Collectors.toList());
+        log.info("query succeeded");
+        Page<UserVO> userVoPage = new Page<>();
+        userVoPage.setRecords(userVos);
+        userVoPage.setTotal(users.getTotal());
+        userVoPage.setSize(users.getSize());
+        userVoPage.setPages(users.getPages());
+        userVoPage.setCurrent(users.getCurrent());
+        return ResultUtils.success(userVoPage);
     }
 }
